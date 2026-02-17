@@ -59,7 +59,7 @@ function addTask($pdo, $data){
         echo json_encode($result);
         return;
     }
-    elseif(mb_strlen($title) > 255){
+    elseif(mb_strlen($title) > 255){    //Проверка длины. Максимальная длина названия 255 символов
         http_response_code(431);
         $result = [
             'status' => false,
@@ -70,7 +70,7 @@ function addTask($pdo, $data){
         return;
     }
 
-    $sql = "INSERT INTO `tasks` (`title`, `description`, `status`) VALUES (:title, :description, :status)"; //запрос в БД
+    $sql = "INSERT INTO `tasks` (`title`, `description`, `status`) VALUES (:title, :description, :status)";
     $stmt = $pdo->prepare($sql);
     try{
         $stmt->execute([
@@ -101,7 +101,7 @@ function addTask($pdo, $data){
 function updatePost($pdo, $id, $data){
     $title = trim($data['title']);
 
-    //Если поле "status" и "description" не указаны, то поле очищается в БД
+    //Если поле "status" или "description" не указаны, то поле очищается в БД
     if (empty($data['status'])){
         $data['status'] = 0;
     }
@@ -120,6 +120,16 @@ function updatePost($pdo, $id, $data){
         $result = [
             'status' => false,
             'message' => 'The task name is not specified! (Не указано название задачи!)',
+            ];
+        
+        echo json_encode($result);
+        return;
+    }
+    elseif(mb_strlen($title) > 255){    //Проверка длины. Максимальная длина названия 255 символов
+        http_response_code(431);
+        $result = [
+            'status' => false,
+            'message' => 'The request header fields are too large! (Поля заголовка запроса слишком большие!)',
             ];
         
         echo json_encode($result);
@@ -164,7 +174,7 @@ function deletePost($pdo, $id){
             'id' => $id
             ]);
 
-        if($stmt->rowCount() === 0){
+        if($stmt->rowCount() === 0){    //Проверка сколько строк этот запрос задел. Если ни одного, то вывод ошибки (Без проверки пишет "Задача удалена")
             http_response_code(404);
             $result = [
                 'status' => false,
@@ -199,12 +209,12 @@ function statusConvert($data){
             ];
 
     $filter = filter_var($data["status"], FILTER_VALIDATE_BOOLEAN, FILTER_NULL_ON_FAILURE);
-    if ($filter === NULL) {
+    if ($filter === NULL) {         //Если было введено число >1 или <0, то выдаст ошибку.
         http_response_code(400);
         echo json_encode($result);
         exit();
     }
 
     $status = is_numeric($data['status']) ? $data['status'] : (int)filter_var($data['status'], FILTER_VALIDATE_BOOLEAN); //Фильтрация ввода. TRUE FALSE будут указаны в БД как 1 или 0
-    return $status;
+    return $status;                 //Возврат статуса всегда 1 или 0.
 }

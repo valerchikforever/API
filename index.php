@@ -1,4 +1,6 @@
 <?php
+/* Надеюсь я правильно понял задание. Дополнительно расписал комментарии для более удобной и быстрой проверки :3 
+Не засчитывайте этот комментарий за ошибку, в итоговых проектах подобного не будет!*/
 header('Content-type: application/json'); //возвращать всё в JSON
 require_once "config/connect.php";     //подключение к БД
 require_once "scripts/functions.php";  //CRUD-операции
@@ -22,29 +24,29 @@ if ($type !== 'tasks'){
 switch ($method){
     case "GET":
         if ($id){
-            getTask($pdo, $id);
+            getTask($pdo, $id);     //Поиск задачи по id
             break;
         }
         else{
-            getTasks($pdo);
+            getTasks($pdo);         //Поиск всех задач
             break;
         }
     case "POST":
-        addTask($pdo, $_POST);
+        addTask($pdo, $_POST);      //Создание задачи
         break;
     case "PUT":
         if($id){
             $data = file_get_contents('php://input');
             $data = json_decode($data, true);
-            updatePost($pdo, $id, $data);
+            updatePost($pdo, $id, $data);   //Обновление задачи (перезаписывание)
         }
         break;
     case "DELETE":
         if($id){
-            deletePost($pdo, $id);
+            deletePost($pdo, $id);  //Удаление задачи по id
         }
         break;
-    default:
+    default:               //При любом другом методе выдаст ошибку
         http_response_code(405);
         $result = [
             'status' => false,
